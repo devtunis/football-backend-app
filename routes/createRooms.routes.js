@@ -8,6 +8,8 @@ import {
     HandedlGetRoom , 
     HandelSeeRequests, 
     HandelVerifyRoom,
+    HandelBreakNews,
+    HandelGetNews
    
     
     } from  "../Controller/Buffer.controller.js"
@@ -23,7 +25,10 @@ router.get("/getrooms",HandelGetRooms) //OK
 router.post("/joinRoom",HandedlGetRoom)//OK
 router.post("/seeRequests",HandelSeeRequests)//OK
 router.post("/verifyAndBringData",HandelVerifyRoom )//OK
+router.post("/breakNews",HandelBreakNews )//OK
+router.post("/getlastnews",HandelGetNews )//Pending
 
+ 
  
 
 export default  router

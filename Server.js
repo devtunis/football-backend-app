@@ -1,14 +1,10 @@
 import express, { json } from "express"
-import { InfoMiddle } from "./middleware/info.js"
 import 'dotenv/config';
 import { ConnectionTodb } from "./ConnectionBd/connectionbd.js";
 import { CustomDns } from "./CustomDns/CustomDns.js";
 import { generateJWT } from "./Jwt/createJwt.js";
 import { verifyJWT, verifyJWTComingSocket } from "./middleware/verifytoken.js";
-import { UUid } from "./util/Genreated.js";
 import cors from "cors"
-import { generateUsername } from "./util/generateUsername.js";
-import { Roles } from "./Roles/Roles.js";
 import User from "./Models/User.js";
 import { httpStatusCodes } from "./Status/httpStatusCodes.js";
 import { hashPasswordfn, HashPasword, hashToken, VerifyPassword } from "./util/HashPassword.js";
@@ -19,19 +15,18 @@ import { v4 as uuidv4 } from 'uuid';
 import { verifyTokenRefresh } from "./middleware/verifyTokenRefresh.js";
 import { Server } from "socket.io";
 import http from "http"
- 
 import * as cookie from "cookie"
 import timeout from "connect-timeout";
 
-//imports routes
 
 import RoutesCreateRooms from "./routes/createRooms.routes.js"
-import RotuesCreateMatch  from "./routes/createEventsRoom.routes.js"
+import RotuesCreateMatch from "./routes/createEventsRoom.routes.js"
+import RouteUseProfile   from "./routes/profile.routes.js"
 import { limiter } from "./Limter/Limter.js";
 
 const app = express()
 
-// app.use(limiter)
+app.use(limiter)
 app.use(json(
     {
         limit:"100kb"
@@ -67,10 +62,10 @@ const offLineUsers = new  Map()
 
 
 
- 
 
 
- 
+
+
  //Middlware
 io.use((socket, next) => {
     const cookieHeader = socket?.handshake?.headers?.cookie
@@ -110,8 +105,6 @@ io.use((socket, next) => {
 
 
 });
-
-
 io.on("connection",async(socket)=>{
 
 
@@ -171,7 +164,7 @@ io.on("connection",async(socket)=>{
 
         )
 
-      console.log(onlineUsers.size,"✅","lengtth")
+      console.log(onlineUsers.size,"✅","length")
 
       console.log(onlineUsers,"✅","accept")
 
@@ -218,9 +211,6 @@ io.on("connection",async(socket)=>{
           console.log(onlineUsers.size,"🌹");
           console.log(onlineUsers,"disconnect")
 });
-
-
-
 })
 
 
@@ -230,7 +220,6 @@ app.post("/login",async(req,res)=>{
     try{
 
         const {Username , password}  = req.body
-        const ConvertHashPassword = await hashPasswordfn(password)
 
         if(!Username || !password){
 
@@ -302,17 +291,17 @@ app.post("/login",async(req,res)=>{
 
             return    res.status(httpStatusCodes.SUCCESS)
                 .json({
-                    LoginAccesToken,
-                    LoginRefreshToken,
+
+
                     status : "ok",
-                    LoginRefreshToken,
-                    findUser,
+
+
                     info :{
                         id : findUser.id ,
                         img : findUser.img ,
                         username: findUser.user_name,
                     },
-                    welcome : findUser.user_name
+
 
                 })
 
@@ -334,6 +323,7 @@ app.post("/login",async(req,res)=>{
 })
 app.post("/ReinitializingToken",async(req,res)=>{
     try{
+
         const CookiesRefreshToken = req.cookies.RefreshToken
 
         if(!CookiesRefreshToken){
@@ -348,7 +338,7 @@ app.post("/ReinitializingToken",async(req,res)=>{
 
 
         const FindRefershToken = await refresh_token.findOne({refresh_token_hash:Hash}).select("refresh_token_hash")
-
+           // fix to see all session
 
 
         if(!FindRefershToken){
@@ -370,7 +360,7 @@ app.post("/ReinitializingToken",async(req,res)=>{
                 httpOnly: true,
                 secure: false,
                 sameSite: "lax",
-                 maxAge: 30 * 24 * 60 * 60 * 1000, // 30 يوم
+                 maxAge: 30 * 24 * 60 * 60 * 1000,
             })
             .status(httpStatusCodes.SUCCESS).json({
                   message :`Succes Refresh acces Token mr ${req.user2.user_name} you can browse now 🎉`,
@@ -413,10 +403,12 @@ app.post("/create",async(req,res)=>{
         // insert to database
 
         const hashedPassword = await HashPasword(user_password);
-        const uuid = uuidv4()
+      const uuid = uuidv4()
+
         const user = new User({
                 id : uuid ,
-                user_name :user_name,
+                user_name: user_name,
+                psuedoName:user_name.includes("_")?user_name.split("_")[0] : user_name,
                 img :  user_img,
                 password:hashedPassword
             })
@@ -449,7 +441,7 @@ app.post("/create",async(req,res)=>{
                 httpOnly: true,
                 secure: false,
                 sameSite: "lax",
-                  maxAge: 30 * 24 * 60 * 60 * 1000, // 30 يوم
+                  maxAge: 30 * 24 * 60 * 60 * 1000,
          });
 
 
@@ -457,7 +449,7 @@ app.post("/create",async(req,res)=>{
                 httpOnly: true,
                 secure: false,
                 sameSite: "lax",
-                  maxAge: 30 * 24 * 60 * 60 * 1000, // 30 يوم
+                  maxAge: 30 * 24 * 60 * 60 * 1000,
          });
 
 
@@ -479,6 +471,9 @@ app.post("/create",async(req,res)=>{
         });
     }
 })
+
+
+
 app.get("/getmydata",verifyJWT,async(req,res)=>{
     try{
 
@@ -492,7 +487,7 @@ app.get("/getmydata",verifyJWT,async(req,res)=>{
         })
     }
 })
-app.post("/api/deleteCookies",(req, res) => {
+app.post("/api/deleteCookies",(_, res) => {
   res.clearCookie("token", {
     httpOnly: true,
     secure: true,
@@ -511,24 +506,10 @@ app.post("/api/deleteCookies",(req, res) => {
 
 
 
-
-// single-flight Imp
-
-
-
-
-
-
-
-
-
-
-
 // Create Routers  room
-
 app.use("/room",verifyJWT,RoutesCreateRooms)
 app.use("/create",verifyJWT,RotuesCreateMatch)
-
+app.use("/profile",verifyJWT,RouteUseProfile)
 
 const GateWay =  process.env.PORT || 3000;
 server.listen(GateWay,()=>console.log(`Server Runing at ${GateWay}`))

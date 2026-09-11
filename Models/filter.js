@@ -5,7 +5,7 @@ import mongoose from "mongoose"
 
 
 const RoomsFollowbd = new mongoose.Schema({
-    _id:false,
+ 
     id:{
         type : String,
         unique:true

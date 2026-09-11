@@ -8,15 +8,21 @@ import { HandeLDeleteMemberRoom } from "../Controller/deleteMemberRoom.controlle
 import {HandelVerifyRoom} from "./HandelVerifyRoom.controller.js"
 import {createMatchcontroller} from "./createMatch.controller.js"
 import {CreateFinshedMatchController} from  "./createFinshedMatch.controller.js"
+import {HandelBreakNews} from "./breakNews.controller.js"
+import { HandelGetNews } from "./getnews.controller.js"
+import { userInterfaceController } from "./user.controller.js"
 export  {
     HandelCreatRoom ,
     HandelSetAdmin ,
     HandelAddMember,
     HandelGetRooms ,
     HandedlGetRoom ,
-    HandelSeeRequests, 
+    HandelSeeRequests,
     HandeLDeleteMemberRoom ,
     HandelVerifyRoom,
     CreateFinshedMatchController,
-    createMatchcontroller
+    createMatchcontroller,
+    HandelBreakNews,
+    HandelGetNews ,
+    userInterfaceController
  }

@@ -1,18 +1,18 @@
 import { Int32 } from "mongodb";
 import mongoose from "mongoose"
 
- 
+
 
 const roomSchema = new mongoose.Schema({
   roomId: {
     type: String ,
     unique:true
-  
+
   },
 
   ownerId: {
     type: String,
-   
+
   },
 
   nameRoom :{
@@ -20,7 +20,7 @@ const roomSchema = new mongoose.Schema({
   }
 ,
   bioRoom : {
-    type:String , 
+    type:String ,
   },
   img: {
     type: String,
@@ -56,18 +56,18 @@ const roomSchema = new mongoose.Schema({
     type:Number,
     default:0
   },
-  
+
   queeRequestJoinRoom : {
     type : [
       {
-        userId : String , 
+        userId : String ,
         img : String,
         name:String ,
         roomId:String,
         date: {
         type: Date,
          default: Date.now
-        } 
+        }
 
 
       }
@@ -80,6 +80,6 @@ const roomSchema = new mongoose.Schema({
 
 
 
- 
+
 const Rooms = mongoose.model('rooms', roomSchema);
 export default Rooms

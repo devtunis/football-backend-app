@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import Sqids from 'sqids'
-const sqids = new Sqids()
+ 
  
 const exportRoomMatches = new mongoose.Schema({
     
@@ -14,6 +14,10 @@ const exportRoomMatches = new mongoose.Schema({
     },
     ownerId:{
         type:String
+    },
+    news : {
+        type:String,
+        default:'no'
     },
     uncomingMatches : [
         {  
