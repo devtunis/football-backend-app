@@ -26,14 +26,15 @@ import { limiter } from "./Limter/Limter.js";
 
 const app = express()
 
-app.use(limiter)
+// app.use(limiter)
 app.use(json(
     {
         limit:"100kb"
     }
 ))
+
 app.use(cors({
-  origin: ["http://localhost:5173","https://fnr2rshh-5173.uks1.devtunnels.ms/"],
+  origin: [process.env.CORS_ORIGIN],
   credentials: true,
 }));
 
