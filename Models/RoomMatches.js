@@ -1,16 +1,16 @@
 import mongoose from "mongoose";
 import Sqids from 'sqids'
- 
- 
+
+
 const exportRoomMatches = new mongoose.Schema({
-    
+
     roomId  :{
         type:String,
         unique:true
     },
     nameroom:{
         type:String,
-        
+
     },
     ownerId:{
         type:String
@@ -20,9 +20,10 @@ const exportRoomMatches = new mongoose.Schema({
         default:'no'
     },
     uncomingMatches : [
-        {  
+        {
             _id:false,
-            matchId :{type:String,default:()=>crypto.randomUUID()},
+            matchId: { type: String   },
+
             time: {type:String},
             location : {type:String},
             maxplayer : {type:Number},
@@ -62,11 +63,11 @@ const exportRoomMatches = new mongoose.Schema({
         goals: 0
     }
     }
- 
+
 });
 
 
- 
+
 const RoomMatches = mongoose.model('RoomMatches', exportRoomMatches);
 export default RoomMatches
 

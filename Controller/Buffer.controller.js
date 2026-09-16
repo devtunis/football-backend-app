@@ -11,6 +11,7 @@ import {CreateFinshedMatchController} from  "./createFinshedMatch.controller.js"
 import {HandelBreakNews} from "./breakNews.controller.js"
 import { HandelGetNews } from "./getnews.controller.js"
 import { userInterfaceController } from "./user.controller.js"
+import { setDeckForMatches } from "./setdeck.controller.js"
 export  {
     HandelCreatRoom ,
     HandelSetAdmin ,
@@ -24,5 +25,6 @@ export  {
     createMatchcontroller,
     HandelBreakNews,
     HandelGetNews ,
-    userInterfaceController
+    userInterfaceController,
+    setDeckForMatches
  }

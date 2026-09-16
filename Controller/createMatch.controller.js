@@ -1,11 +1,12 @@
- 
+
 import RoomMatches from "../Models/RoomMatches.js"
+import unComingMatchDetails from "../Models/custom_Matches.js"
 import { httpStatusCodes } from "../Status/httpStatusCodes.js"
 
-const {SUCCESS ,BAD_REQUEST}   = httpStatusCodes   
+const {SUCCESS ,BAD_REQUEST}   = httpStatusCodes
 export const createMatchcontroller =async (req,res) => {
     const {roomId,time,location,maxplayer,description} = req.body
- 
+
 
     if(!roomId || !time || !location || !maxplayer || !description       ){
         return res.status(BAD_REQUEST).json({
@@ -30,13 +31,15 @@ export const createMatchcontroller =async (req,res) => {
         })
     }
 
- 
+
+    const genreateKey = crypto.randomUUID()
  // description here do trim  for description and found about it
     await RoomMatches.findOneAndUpdate(
         { roomId },
         {
             $push:{
                 uncomingMatches : {
+                    matchId:genreateKey,
                     time,
                     location,
                     maxplayer,
@@ -48,11 +51,17 @@ export const createMatchcontroller =async (req,res) => {
 
 
 )
- 
 
-    
+    const SaveDetailsMatches = new unComingMatchDetails({
+      roomId,
+      matchId:genreateKey
+
+    })
+
+await SaveDetailsMatches.save()
+
     res.status(SUCCESS).json({
-       roomId,time,location,maxplayer,description   
+       roomId,time,location,maxplayer,description
     })
   }catch(err){
     res.status(BAD_REQUEST).json({
@@ -60,4 +69,3 @@ export const createMatchcontroller =async (req,res) => {
     })
   }
 }
- 
