@@ -42,7 +42,8 @@ export const   HandelVerifyRoom =async (req,res) => {
              permision:checkPermison.ownerId==req.user.id,
              isMember:true,
              uncomingMatches:bringUncomingRoms.uncomingMatches,
-             finishedmatches  : bringUncomingRoms.finishedmatches
+             finishedmatches  : bringUncomingRoms.finishedmatches,
+             roomId
         })
     }
     catch(err){

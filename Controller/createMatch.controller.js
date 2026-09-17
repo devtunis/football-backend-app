@@ -61,7 +61,7 @@ export const createMatchcontroller =async (req,res) => {
 await SaveDetailsMatches.save()
 
     res.status(SUCCESS).json({
-       roomId,time,location,maxplayer,description
+       roomId,time,location,maxplayer,description,genreateKey
     })
   }catch(err){
     res.status(BAD_REQUEST).json({

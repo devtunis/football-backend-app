@@ -12,6 +12,7 @@ import {HandelBreakNews} from "./breakNews.controller.js"
 import { HandelGetNews } from "./getnews.controller.js"
 import { userInterfaceController } from "./user.controller.js"
 import { setDeckForMatches } from "./setdeck.controller.js"
+import {GetUsersForCustomDeck} from "./GetUsersForCustomDeck.js"
 export  {
     HandelCreatRoom ,
     HandelSetAdmin ,
@@ -26,5 +27,6 @@ export  {
     HandelBreakNews,
     HandelGetNews ,
     userInterfaceController,
-    setDeckForMatches
+    setDeckForMatches,
+    GetUsersForCustomDeck
  }
