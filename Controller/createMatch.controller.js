@@ -5,10 +5,10 @@ import { httpStatusCodes } from "../Status/httpStatusCodes.js"
 
 const {SUCCESS ,BAD_REQUEST}   = httpStatusCodes
 export const createMatchcontroller =async (req,res) => {
-    const {roomId,time,location,maxplayer,description} = req.body
+    const {roomId,time,location,maxplayer,description ,typeMatch} = req.body
 
 
-    if(!roomId || !time || !location || !maxplayer || !description       ){
+    if(!roomId || !time || !location || !maxplayer || !description   || !typeMatch    ){
         return res.status(BAD_REQUEST).json({
             message:"missing fields",
             code:1
@@ -45,6 +45,8 @@ export const createMatchcontroller =async (req,res) => {
                     maxplayer,
                     description,
                     author:req.user.user_name,
+                    typeMatch
+                    
                 }
             }
         }
@@ -52,11 +54,14 @@ export const createMatchcontroller =async (req,res) => {
 
 )
 
+  
     const SaveDetailsMatches = new unComingMatchDetails({
       roomId,
-      matchId:genreateKey
+      matchId:genreateKey,
+      ownerId:req.user.id,
+      maxPlayer:maxplayer // fix player
 
-    })
+    })  
 
 await SaveDetailsMatches.save()
 

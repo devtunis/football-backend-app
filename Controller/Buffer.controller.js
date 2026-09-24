@@ -13,6 +13,11 @@ import { HandelGetNews } from "./getnews.controller.js"
 import { userInterfaceController } from "./user.controller.js"
 import { setDeckForMatches } from "./setdeck.controller.js"
 import {GetUsersForCustomDeck} from "./GetUsersForCustomDeck.js"
+import {getMapPlayer} from "./getMapPlayer.controller.js"
+import {HandelJoinSession} from "./HandelJoinSession.controller.js"
+import {HandelGetMemebers}  from "./HandelGetMemebers.controller.js"
+import {HandelsetBestPlayers} from "./HandelsetBestPlayers.controller.js"
+import {HandelgetsetBestPlayers} from "./HandelgetsetBestPlayers.controller.js"
 export  {
     HandelCreatRoom ,
     HandelSetAdmin ,
@@ -28,5 +33,10 @@ export  {
     HandelGetNews ,
     userInterfaceController,
     setDeckForMatches,
-    GetUsersForCustomDeck
+    GetUsersForCustomDeck,
+    getMapPlayer,
+    HandelJoinSession,
+    HandelGetMemebers,
+    HandelsetBestPlayers,
+    HandelgetsetBestPlayers
  }

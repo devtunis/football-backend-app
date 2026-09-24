@@ -14,6 +14,13 @@ const CustomMatchesMap = new mongoose.Schema({
           type : String,
 
   },
+      ownerId:{
+          type : String,
+
+  },
+
+    maxPlayer :{type:Number,default:0} ,
+    registerM : {type:[],default:[]},
     mapPlayers:{
       type: [
         {

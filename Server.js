@@ -32,7 +32,7 @@ app.use(json(
         limit:"100kb"
     }
 ))
-
+ 
 app.use(cors({
   origin: [process.env.CORS_ORIGIN],
   credentials: true,
@@ -94,6 +94,8 @@ io.use((socket, next) => {
         return next(new Error("invalid token"))
     }
 
+    console.log(verify)
+    
 
     socket.data  = verify.user_name || null
     socket.data2  = verify|| null
@@ -114,6 +116,7 @@ io.on("connection",async(socket)=>{
 
     if(!socket.data)
     {
+        console.log("socket run 117")
 
        socket.emit("auth_error",{
         reason: "TOKEN_EXPIRED"
@@ -472,9 +475,6 @@ app.post("/create",async(req,res)=>{
         });
     }
 })
-
-
-
 app.get("/getmydata",verifyJWT,async(req,res)=>{
     try{
 
@@ -504,6 +504,14 @@ app.post("/api/deleteCookies",(_, res) => {
   });
   res.sendStatus(200);
 });
+
+
+
+
+
+
+
+
 
 
 

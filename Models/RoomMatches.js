@@ -29,7 +29,9 @@ const exportRoomMatches = new mongoose.Schema({
             maxplayer : {type:Number},
             description :{type:String},
             author:{type:String},
-            currentPlayer:{type:[],default:[]}, // last thing here
+            currentPlayer:{type:[],default:[]},  
+            registerPlayer:{type:[],default:[]},
+            typeMatch:{type:String}
     
         }
     ]

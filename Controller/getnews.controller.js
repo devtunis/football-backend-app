@@ -10,7 +10,9 @@ export const HandelGetNews = async(req,res) => {
         })
     }
   
-    try{
+    try{ 
+
+        // fix this bug dont check for the permision checj for if he exisit in this room or not
 
          const findRoom = await RoomMatches.findOne({roomId}).select("ownerId news -_id")
             if(!findRoom){
@@ -20,12 +22,12 @@ export const HandelGetNews = async(req,res) => {
                    
                 })
             }
-            if(findRoom.ownerId!=req.user.id){
-                return res.status(BAD_REQUEST).json({
-                    message:"you not authorzied to do this request",
+            // if(findRoom.ownerId!=req.user.id){
+            //     return res.status(BAD_REQUEST).json({
+            //         message:"you not authorzied to do this request",
                     
-                })
-            }
+            //     })
+            // }
         
  
 
