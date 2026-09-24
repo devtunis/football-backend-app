@@ -8,7 +8,7 @@ export const HandelsetBestPlayers = async(req,res) => {
    try{
 
   const {name,likes,img,goals,roomId}  = req.body 
-  if(!name || !likes || !img || !goals || !roomId){
+  if(!name || likes==null|| !img || goals==null || !roomId){
     return res.status(BAD_REQUEST).json({
         err:"missing fields"
     })

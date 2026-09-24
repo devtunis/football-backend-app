@@ -18,12 +18,12 @@ export const HandelgetsetBestPlayers = async(req,res) => {
           err:"no room  without this id"
        }) 
       }
-      if(req.user.id!=findRoom.ownerId)
-      {
-          return res.status(BAD_REQUEST).json({
-              err:"you not authorized to do this action"
-          })
-      }
+    //   if(req.user.id!=findRoom.ownerId)
+    //   {
+    //       return res.status(BAD_REQUEST).json({
+    //           err:"you not authorized to do this action"
+    //       })
+    //   }
     res.status(SUCCESS).json(
         findRoom.bestplayer
        )
