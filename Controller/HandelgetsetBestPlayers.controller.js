@@ -5,6 +5,11 @@ import { httpStatusCodes } from "../Status/httpStatusCodes.js"
 const {BAD_REQUEST, SUCCESS} = httpStatusCodes 
 export const HandelgetsetBestPlayers = async(req,res) => {
      try{ 
+
+
+
+     
+      
       const {roomId}  = req.body 
       if(!roomId){
           return res.status(BAD_REQUEST).json({
@@ -29,7 +34,7 @@ export const HandelgetsetBestPlayers = async(req,res) => {
        )
      }catch(err){
        res.status(BAD_REQUEST).json({
-          err:err.messaeg
+          err:err.message
        })
      }
  

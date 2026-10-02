@@ -28,9 +28,9 @@ router.post("/seeRequests",HandelSeeRequests)//OK
 router.post("/verifyAndBringData",HandelVerifyRoom )//OK
 router.post("/breakNews",HandelBreakNews )//OK
 router.post("/getlastnews",HandelGetNews )//Pending
-router.post("/getMembers",HandelGetMemebers )//Pending
-router.post("/setBestPlayers",HandelsetBestPlayers)//Pending
-router.post("/getsetBestPlayers",HandelgetsetBestPlayers)//Pending
+router.post("/getMembers",HandelGetMemebers )//OK
+router.post("/setBestPlayers",HandelsetBestPlayers)// BUG 
+router.post("/getsetBestPlayers",HandelgetsetBestPlayers)//BUG
 
  
  

@@ -22,7 +22,14 @@ import timeout from "connect-timeout";
 import RoutesCreateRooms from "./routes/createRooms.routes.js"
 import RotuesCreateMatch from "./routes/createEventsRoom.routes.js"
 import RouteUseProfile   from "./routes/profile.routes.js"
+ 
 import { limiter } from "./Limter/Limter.js";
+
+
+import cp from "node:child_process"
+
+
+
 
 const app = express()
 
@@ -42,7 +49,7 @@ app.use(cors({
 app.use(cookieParser())
 CustomDns()
 ConnectionTodb()
-app.use(timeout("5s"));
+app.use(timeout("225s"));
 
 const server = http.createServer(app);
 const io = new Server(server,{
@@ -65,8 +72,7 @@ const offLineUsers = new  Map()
 
 
 
-
-
+ 
  //Middlware
 io.use((socket, next) => {
     const cookieHeader = socket?.handshake?.headers?.cookie
@@ -445,7 +451,7 @@ app.post("/create",async(req,res)=>{
                 httpOnly: true,
                 secure: false,
                 sameSite: "lax",
-                  maxAge: 30 * 24 * 60 * 60 * 1000,
+                maxAge: 30 * 24 * 60 * 60 * 1000,
          });
 
 
@@ -453,7 +459,7 @@ app.post("/create",async(req,res)=>{
                 httpOnly: true,
                 secure: false,
                 sameSite: "lax",
-                  maxAge: 30 * 24 * 60 * 60 * 1000,
+                maxAge: 30 * 24 * 60 * 60 * 1000,
          });
 
 
@@ -506,12 +512,8 @@ app.post("/api/deleteCookies",(_, res) => {
 });
 
 
-
-
-
-
-
-
+ 
+ 
 
 
 
@@ -519,6 +521,147 @@ app.post("/api/deleteCookies",(_, res) => {
 app.use("/room",verifyJWT,RoutesCreateRooms)
 app.use("/create",verifyJWT,RotuesCreateMatch)
 app.use("/profile",verifyJWT,RouteUseProfile)
+ 
+// split worker
+
+
+ 
+
+
+
+
+
+
+ 
+ 
+
+
+
+
+
+ 
+
+
+const Broker = cp.fork('./BrokerMessageJob/broker.js');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+let eventClient  
+ 
+ 
+let quee = []
+
+
+ 
+// workerManger.forEach((worker)=>{
+
+//     worker.w.on('message', async(message) => {
+  
+//      if(message.type=="failed"){
+//           eventClient.write(`data: ${JSON.stringify({
+//         status: "failed",
+      
+//         })}\n\n`);
+//      }
+//     if(eventClient){
+    
+        
+//             const RestWorker = workerManger.find((item)=>item.worker == message.worker )
+//             RestWorker.available = true
+//             eventClient.write(`data: ${JSON.stringify({
+//             status: "Complete",
+//             CategorieVideo:message.type,
+//             responseFromWorker : message.worker
+//             })}\n\n`);
+
+
+           
+//                 const SiftFirstOpearation = quee.shift()
+//                 if(SiftFirstOpearation){
+                  
+                    
+//                         const workerAlive = getAvailableWorker (workerManger)
+  
+//                         console.log(workerAlive.worker)
+//                         RunProcess(workerAlive,{id:SiftFirstOpearation.id,img_link:SiftFirstOpearation.img_link,workerInfo:workerAlive.worker})
+                        
+
+
+
+           
+//                 }
+            
+     
+            
+//     }
+ 
+// });
+
+ 
+//     worker.w.on('close', (code) => {
+//     console.log(`Child process exited with code ${code}`);
+//     });
+// })
+
+
+
+ 
+
+
+function Producer(BrokerMessages,payload){
+   
+    BrokerMessages.send(payload)
+}
+
+
+
+
+
+app.post("/api/upload/video",(req,res)=>{
+    
+    const {id,img_link} = req.body 
+    Producer(Broker,{id,img_link,typeJob:"Upload image"})
+    return res.status(200).json({status :"Processing"})
+    
+})
+
+
+
+app.get("/events/result", (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+   eventClient = res;
+   req.on("close", () => {
+    eventClient = null;
+  });
+ 
+
+ 
+});
+
+
+
+
+
+
+
+
 
 const GateWay =  process.env.PORT || 3000;
 server.listen(GateWay,()=>console.log(`Server Runing at ${GateWay}`))
+
+ 

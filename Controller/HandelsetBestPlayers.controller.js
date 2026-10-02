@@ -27,9 +27,9 @@ export const HandelsetBestPlayers = async(req,res) => {
   if(!findRoom){
     return res.status(BAD_REQUEST).json({err:"no room in this id"})
   }
-  if(findRoom.ownerId!=req.user.id){
-    return res.status(BAD_REQUEST).json({err:"you not authorized in this action"})
-  }
+  // if(findRoom.ownerId!=req.user.id){
+  //   return res.status(BAD_REQUEST).json({err:"you not authorized in this action"})
+  // }
 
 
 
