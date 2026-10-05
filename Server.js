@@ -561,7 +561,6 @@ const Broker = cp.fork('./BrokerMessageJob/broker.js');
 let eventClient  
  
  
-let quee = []
 
 
  
@@ -629,10 +628,16 @@ function Producer(BrokerMessages,payload){
 
 
 
-app.post("/api/upload/video",(req,res)=>{
+app.post("/api/upload/video",verifyJWT,(req,res)=>{
     
-    const {id,img_link} = req.body 
-    Producer(Broker,{id,img_link,typeJob:"Upload image"})
+    const {img} = req.body 
+    Producer(Broker,
+        {
+            userid:req.user.id,
+            test:"test!!"
+
+        }
+    )
     return res.status(200).json({status :"Processing"})
     
 })

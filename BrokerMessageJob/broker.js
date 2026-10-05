@@ -2,7 +2,7 @@
 import cp from "node:child_process"
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-
+import {uuid} from "../BrokerMessageJob/uuid.js"
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const worker1 = cp.fork(path.join(__dirname,"../Workers/worker1.js"));
@@ -21,24 +21,24 @@ let workerManger =  [
   },
   {
     worker:"worker2",
-    available:true,
+    available:false,
     refWorker:worker2,
 	stauts:"good"
   },
   {
      worker:"worker3",
-     available:true,
+     available:false,
      refWorker:worker3,
 	 stauts:"good"
   },
    {
      worker:"worker4",
-     available:true,
+     available:false,
      refWorker:worker4,
 	 stauts:"good"
   }, {
      worker:"worker5",
-     available:true,
+     available:false,
      refWorker:worker5,
 	 stauts:"good"
   },
@@ -50,69 +50,149 @@ let workerManger =  [
  
 let SleepWorkes = [] 
 let waiters = [] 
- 
+let PendingJob = []
 
-let PendingJobsForTheQuee = []
+let Register = new Map()
 
-// do like map save the all opeartion happend cauz it fall return working 
+let UpdateListners = false
 
 
 function listenWorkes(workerManger){
 	
-	workerManger.forEach((worker)=>{
+	workerManger.forEach((worker)=>{ 
+	    
+		
+		 
+		worker.refWorker.on('message', async(result) => {
+          
+		   console.log("-------------------------------------------------------")
+		   console.log(result,"result wroker")
+		   if(result.status=="Completed"){
+			Register.delete(result.worker)
+		   }
 
-		worker.refWorker.on('message', async(message) => {
-		   console.log(message)
-			const MakeWorkerAlive =  workerManger.find(item => item.worker === message.worker)
+		  
+		   console.log("-------------------------------------------------------")
+		  
+
+
+
+
+
+
+			const MakeWorkerAlive =  workerManger.find(item => item.worker === result.worker && item.stauts ==="good")
 			MakeWorkerAlive.available = true
 
-			const goodWroker = getAvailableWorker(workerManger)
-			 
-			if(PendingJobsForTheQuee.length>0){
-				const TakeJob = PendingJobsForTheQuee.shift()
-			    goodWroker.refWorker.send(TakeJob.img)
-				goodWroker.available = false
+			const getAliveWorker = getAvailableWorker(workerManger)
+	
+			if(PendingJob.length>0 && getAliveWorker){
 
-			}
+			    console.log("Their Pending Job",PendingJob.length)
+				const TakeJob = PendingJob.shift()
+			    getAliveWorker.refWorker.send(TakeJob)
+				getAliveWorker.available = false
+
+				Register.set(getAliveWorker.worker,TakeJob)
+			  
+			} 
 	
 	
 		})
 
-		// retry connection
-		worker.refWorker.on('close', (code) => {
-		console.log(`Child process exited with code ${code}`);
-	 
+		 worker.refWorker.on("exit", (code, signal) => {
+			console.log("Worker ------------------------------- died", { code, signal });
+
+			if (code !== 0) {
+				// Worker failed
+			 
+				 
+				
+			     
+                 worker.stauts = "died"
+				 worker.available = false
+		 
+				console.log("this what reset 114",PendingJob.length)
+				  if(Register.get(worker.worker)){
+                     SetJob(Register.get(worker.worker))
+					   
+				  }
+
+				 ReviveWroker(worker.worker)
+  
+
+				
+			}
 		});
 
-		worker.refWorker.on("exit", (code, signal) => {
-			console.log(
-				`Worker ${worker.worker} exited`,
-				{ code, signal }
-			);
-
-	
  
- 
-    });
-
-	 
-		worker.refWorker.on("error", (err) => {
-		console.error(
-			`Worker ${worker.worker} error:`,
-			err
-		);
-		});
-
-   
-		worker.refWorker.on("disconnect", () => {
-		console.log(`Worker ${worker.worker} disconnected`);
-
-	
-		});
-
 
 	})
+ 
+}
+// start use unshift for make priorty of js
 
+// sql
+function listenWorker (w){
+		// shoule be ahnde the pid of child
+		w.refWorker.on("message",(foo)=>
+		{
+			console.log(foo,"result ..............REVIER......................")
+			if(foo.status=="Completed")
+			{
+				Register.delete(w.worker)
+				w.available = true
+			}
+
+			 
+				
+				if(PendingJob.length>0 && w.available){
+
+					console.log("Their Pending Job",PendingJob.length)
+					let TakJob = PendingJob.shift() 
+					w.refWorker.send(TakJob)
+					w.available = false
+
+					Register.set(w.worker, TakJob)
+				
+				} 
+		
+		})
+		w.refWorker.on("exit", (code, signal) => {
+			if (code !== 0) {
+				console.log("exist ------------------------------------- again")
+ 
+					
+					
+					w.stauts = "died" 
+					w.available = false
+					console.log("this is what reset from 168",PendingJob.length)
+					 
+					if(Register.get(w.worker)){
+						SetJob(Register.get(w.worker))
+						
+					}
+
+		        	ReviveWroker(w.worker)
+		
+			}
+			
+		})
+	}
+
+
+
+
+function ReviveWroker(nameworker){
+	 
+	const RestartWroker = workerManger.find(item => item.worker === nameworker)
+	 
+	 
+    RestartWroker.refWorker = cp.fork(path.join(__dirname,`../Workers/${nameworker}.js`));
+    RestartWroker.stauts = "good"
+    RestartWroker.available = true
+   
+	listenWorker(RestartWroker)
+	 
 }
 function getAvailableWorker(workerManger){
 	return workerManger.find(worker=>worker.available && worker.stauts==="good")
@@ -120,20 +200,17 @@ function getAvailableWorker(workerManger){
  
 
 listenWorkes(workerManger)
+ 
+
 
  
 
 
-// refactor this code
-// mourad tahrri
 
 
 
 
-
-
-
-//waiters
+ 
 const WaitWorker  = ()=>{
 	
 		return new Promise((resolve,reject)=>{
@@ -143,28 +220,27 @@ const WaitWorker  = ()=>{
 			   }
 				 
 				else{
-			    SleepWorkes.push({
-						resolve,reject
-				})
+			
+					SleepWorkes.push({resolve,reject})
 				 
-		 
-				
-			} 
+			    } 
 		})
 }
-function Consumer(writer){
+function SetJob(job){
 	     
 		 if(SleepWorkes.length>0){
-			SleepWorkes.shift().resolve(writer)
+			SleepWorkes.shift().resolve(job)
 		 }
 		 else{
-			waiters.push(writer)
+			waiters.push(job)
 			
 		 }
-
-
-
-
+		 
+		 
+	 
+ 
+ 
+	 
 	 
 }
 async function runQuee(){
@@ -172,9 +248,22 @@ async function runQuee(){
 	 while(true){
 		
 		 const foo  = await WaitWorker()
-		 console.log(foo.img)
-		 foo.worker.send(foo.img)
-			
+		 // HandelRequests(...)
+		 
+
+		 const ValidWroker = getAvailableWorker(workerManger)
+	 
+		 if(ValidWroker){	
+		     
+			Register.set(ValidWroker.worker ,foo)
+            ValidWroker.refWorker.send(foo)
+		    ValidWroker.available = false
+			 
+		 }else{
+               PendingJob.push(foo)
+			   console.log("......queued......")
+			   
+		 }
 	 
 	 }
  }
@@ -184,26 +273,7 @@ runQuee()
  
 
  
-process.on('message', async (message) => {
-	const worker = getAvailableWorker(workerManger)
-     
-	console.log({...worker,refWorker:"..."})
-     if(!worker){
-		console.log("queued")
-        PendingJobsForTheQuee.push({id:message.id,type:message.typeJob,img:message.img_link})
-		return 
-	 }
- 
-	
-	Consumer({
-		id:message.id,
-		type:message.typeJob,
-		img:message.img_link,
-		worker:worker.refWorker
-	})
- 
-	worker.available =false
-})
+process.on('message', async (stream) => {SetJob({id:uuid(),stream,isCompleted:"Pending"})})
  
  
  

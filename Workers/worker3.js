@@ -1,18 +1,17 @@
+import { fileURLToPath } from "node:url";
 import { AnalyzeImage } from "./util_workers/AnalyzeImage";
 import { BufferImage } from "./util_workers/BufferImage";
-
-process.on("message", async (IMG) => {
-  try {
-    const shrinkImage = await BufferImage(IMG);
-    
-
-    const type = await AnalyzeImage(shrinkImage);
-
+import { exit } from "node:process";
  
+process.on("message", async (stream) => {
+  try {
+ 
+
+ console.log(stream)
 
     if (process.connected) {
       process.send({
-        type,
+        
         status: "Completed",
         worker: "worker3",
       });

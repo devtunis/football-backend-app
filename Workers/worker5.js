@@ -1,20 +1,19 @@
+import { fileURLToPath } from "node:url";
 import { AnalyzeImage } from "./util_workers/AnalyzeImage";
 import { BufferImage } from "./util_workers/BufferImage";
-
-process.on("message", async (IMG) => {
+import { exit } from "node:process";
+ 
+process.on("message", async (stream) => {
   try {
-    const shrinkImage = await BufferImage(IMG);
-  
+ 
 
-    const type = await AnalyzeImage(shrinkImage);
-
-    
+ console.log(stream)
 
     if (process.connected) {
       process.send({
-        type,
+        
         status: "Completed",
-        worker: "worker4",
+        worker: "worker5",
       });
     } else {
       console.log("IPC channel is closed, cannot send result");
@@ -25,7 +24,7 @@ process.on("message", async (IMG) => {
     if (process.connected) {
       process.send({
         type: "failed",
-        worker: "worker4",
+        worker: "worker5",
       });
     } else {
       console.log("IPC channel is closed, cannot send error");
