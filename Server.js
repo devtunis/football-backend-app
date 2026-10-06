@@ -631,6 +631,7 @@ function Producer(BrokerMessages,payload){
 app.post("/api/upload/video",verifyJWT,(req,res)=>{
     
     const {img} = req.body 
+    // this send it to redis
     Producer(Broker,
         {
             userid:req.user.id,

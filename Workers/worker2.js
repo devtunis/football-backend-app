@@ -8,11 +8,14 @@ process.on("message", async (stream) => {
  
  
     console.log(`ID opeartion w2 ${stream.id} and this is the data send it by user ${stream.stream.userid} `)
+ 
+ 
+   
      function Delay(){
       return new Promise((resolve)=>{
         setTimeout(() => {
           resolve("hey")          
-        }, 4000);
+        }, 5000);
       })
      }
     await Delay()

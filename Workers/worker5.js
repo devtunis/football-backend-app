@@ -7,11 +7,19 @@ process.on("message", async (stream) => {
   try {
  
 
- console.log(stream)
+  console.log(`ID opeartion w5 ${stream.id} and this is the data send it by user ${stream.stream.userid} `)
+      function Delay(){
+      return new Promise((resolve)=>{
+        setTimeout(() => {
+          resolve("hey")          
+        }, 5000);
+      })
+     }
+    await Delay()
 
     if (process.connected) {
       process.send({
-        
+        stream,
         status: "Completed",
         worker: "worker5",
       });

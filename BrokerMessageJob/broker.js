@@ -3,6 +3,8 @@ import cp from "node:child_process"
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import {uuid} from "../BrokerMessageJob/uuid.js"
+
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const worker1 = cp.fork(path.join(__dirname,"../Workers/worker1.js"));
@@ -21,28 +23,30 @@ let workerManger =  [
   },
   {
     worker:"worker2",
-    available:false,
+    available:true,
     refWorker:worker2,
 	stauts:"good"
   },
   {
      worker:"worker3",
-     available:false,
+     available:true,
      refWorker:worker3,
 	 stauts:"good"
   },
    {
      worker:"worker4",
-     available:false,
+     available:true,
      refWorker:worker4,
 	 stauts:"good"
   }, {
      worker:"worker5",
-     available:false,
+     available:true,
      refWorker:worker5,
 	 stauts:"good"
   },
 ]
+
+
 
 
 
@@ -54,14 +58,14 @@ let PendingJob = []
 
 let Register = new Map()
 
-let UpdateListners = false
+let attempts = new Map()
 
 
 function listenWorkes(workerManger){
 	
 	workerManger.forEach((worker)=>{ 
-	    
-		
+	   
+	    attempts.set(worker.worker,0)
 		 
 		worker.refWorker.on('message', async(result) => {
           
@@ -111,7 +115,7 @@ function listenWorkes(workerManger){
                  worker.stauts = "died"
 				 worker.available = false
 		 
-				console.log("this what reset 114",PendingJob.length)
+				 console.log("this what reset 114",PendingJob.length)
 				  if(Register.get(worker.worker)){
                      SetJob(Register.get(worker.worker))
 					   
@@ -182,16 +186,30 @@ function listenWorker (w){
 
 
 
+
 function ReviveWroker(nameworker){
-	 
-	const RestartWroker = workerManger.find(item => item.worker === nameworker)
-	 
-	 
-    RestartWroker.refWorker = cp.fork(path.join(__dirname,`../Workers/${nameworker}.js`));
-    RestartWroker.stauts = "good"
-    RestartWroker.available = true
-   
-	listenWorker(RestartWroker)
+	console.log("this the nameWorer",nameworker)
+ 
+
+
+	if(attempts.get(nameworker)>=3)
+	{
+		console.log("you reach it ")
+		return
+	} 
+	else{
+		attempts.set(nameworker,attempts.get(nameworker)+1)
+ 
+	    const RestartWroker = workerManger.find(item => item.worker === nameworker)
+		RestartWroker.refWorker = cp.fork(path.join(__dirname,`../Workers/${nameworker}.js`));
+		RestartWroker.stauts = "good"
+		RestartWroker.available = true
+		listenWorker(RestartWroker)
+
+	}
+ 
+
+
 	 
 }
 function getAvailableWorker(workerManger){
@@ -201,7 +219,7 @@ function getAvailableWorker(workerManger){
 
 listenWorkes(workerManger)
  
-
+console.log(attempts)
 
  
 
@@ -275,7 +293,18 @@ runQuee()
  
 process.on('message', async (stream) => {SetJob({id:uuid(),stream,isCompleted:"Pending"})})
  
- 
+//  setInterval(() => {
+//     const memory = process.memoryUsage();
+
+//     console.log({
+//         rss: memory.rss,
+//         heapUsed: memory.heapUsed,
+//         heapTotal: memory.heapTotal,
+//         register: Register.size,
+//         pending: PendingJob.length,
+//     });
+// }, 2000);
+
  
  
  

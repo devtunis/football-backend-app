@@ -5,16 +5,14 @@ import { exit } from "node:process";
  
 process.on("message", async (stream) => {
   try {
-     setTimeout(() => {
-      process.exit(1)      
-    }, 2500);
+ 
  
     console.log(`ID opeartion w1 ${stream.id} and this is the data send it by user ${stream.stream.userid} `)
      function Delay(){
       return new Promise((resolve)=>{
         setTimeout(() => {
           resolve("hey")          
-        }, 3000);
+        }, 5000);
       })
      }
     await Delay()
