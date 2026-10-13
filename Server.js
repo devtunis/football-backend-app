@@ -663,8 +663,7 @@ app.get("/events/result", (req, res) => {
 
 
 
-
-
+ 
 
 
 const GateWay =  process.env.PORT || 3000;

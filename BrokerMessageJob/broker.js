@@ -3,53 +3,95 @@ import cp from "node:child_process"
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import {uuid} from "../BrokerMessageJob/uuid.js"
+ 
+ 
+import fs from 'node:fs';
+import { generateTemplateCode } from "./content.js";
+import { fail } from "node:assert";
+ 
 
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-const worker1 = cp.fork(path.join(__dirname,"../Workers/worker1.js"));
-const worker2 = cp.fork(path.join(__dirname,"../Workers/worker2.js"));
-const worker3 = cp.fork(path.join(__dirname,"../Workers/worker3.js"));
-const worker4 = cp.fork(path.join(__dirname,"../Workers/worker4.js"));
-const worker5 = cp.fork(path.join(__dirname,"../Workers/worker5.js"));
 
  
-let workerManger =  [
-  {
-    worker:"worker1",
-    available:true,
-    refWorker:worker1,
-	stauts:"good"
-  },
-  {
-    worker:"worker2",
-    available:true,
-    refWorker:worker2,
-	stauts:"good"
-  },
-  {
-     worker:"worker3",
-     available:true,
-     refWorker:worker3,
-	 stauts:"good"
-  },
-   {
-     worker:"worker4",
-     available:true,
-     refWorker:worker4,
-	 stauts:"good"
-  }, {
-     worker:"worker5",
-     available:true,
-     refWorker:worker5,
-	 stauts:"good"
-  },
-]
+let GlobalWorkerFile = 'workers'
+let NumberOfWorker = 5
+
+let workerManger  = []
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+ 
+
+const  createWorkerManger = ()=>{
+		for(let i = 1;i<=5;i++){
+		let createWorker = {
+				worker:`worker${i}`,
+				available:i==1?true:false,
+				refWorker:cp.fork(path.join(__dirname,`../${GlobalWorkerFile}/worker${i}.js`)),
+				stauts:"good"
+		}
+		workerManger.push(createWorker)
+		}
+		 
+}
+const createfiles = (pathFile,count)=>{
+ 
+       if(count<1)return
+	 
+		try {
+		fs.writeFileSync(`${pathFile}/worker${count}.js`, generateTemplateCode(count));
+		// file written successfully
+		} catch (err) {
+		console.error(err);
+		}
+		createfiles(pathFile,count-1)
+}
+
+
+const runModule = async () => {
+  try {
+    const projectFolder = new URL(`../${GlobalWorkerFile}`, import.meta.url);
+
+   
+    
+	 
+
+
+	try {
+	if (!fs.existsSync(projectFolder)) {
+		fs.mkdirSync(projectFolder);
+		console.log("Create success")
+		
+	}
+	} catch (err) {
+	console.error(err);
+	}
+
+
+
+	createfiles(path.join(__dirname,`../${GlobalWorkerFile}`),NumberOfWorker)
+ 
+	
+	createWorkerManger()
+ 
+
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+
+runModule()
 
 
 
 
 
+ 
+ 
+ 
+
+  
+
+
+ 
   
  
 let SleepWorkes = [] 
@@ -62,7 +104,7 @@ let attempts = new Map()
 
 
 function listenWorkes(workerManger){
-	
+	 
 	workerManger.forEach((worker)=>{ 
 	   
 	    attempts.set(worker.worker,0)
@@ -75,22 +117,23 @@ function listenWorkes(workerManger){
 			Register.delete(result.worker)
 		   }
 
+		   
 		  
 		   console.log("-------------------------------------------------------")
 		  
 
 
 
-
-
-
-			const MakeWorkerAlive =  workerManger.find(item => item.worker === result.worker && item.stauts ==="good")
-			MakeWorkerAlive.available = true
+               const MakeWorkerAlive =  workerManger.find(item => item.worker === result.worker && item.stauts ==="good")
+			   
+                MakeWorkerAlive.available = true
+       
 
 			const getAliveWorker = getAvailableWorker(workerManger)
 	
 			if(PendingJob.length>0 && getAliveWorker){
 
+		     	
 			    console.log("Their Pending Job",PendingJob.length)
 				const TakeJob = PendingJob.shift()
 			    getAliveWorker.refWorker.send(TakeJob)
@@ -133,9 +176,8 @@ function listenWorkes(workerManger){
 	})
  
 }
-// start use unshift for make priorty of js
+ 
 
-// sql
 function listenWorker (w){
 		// shoule be ahnde the pid of child
 		w.refWorker.on("message",(foo)=>
@@ -192,7 +234,7 @@ function ReviveWroker(nameworker){
  
 
 
-	if(attempts.get(nameworker)>=3)
+	if(attempts.get(nameworker)>=10)
 	{
 		console.log("you reach it ")
 		return
@@ -201,7 +243,7 @@ function ReviveWroker(nameworker){
 		attempts.set(nameworker,attempts.get(nameworker)+1)
  
 	    const RestartWroker = workerManger.find(item => item.worker === nameworker)
-		RestartWroker.refWorker = cp.fork(path.join(__dirname,`../Workers/${nameworker}.js`));
+		RestartWroker.refWorker = cp.fork(path.join(__dirname,`../${GlobalWorkerFile}/${nameworker}.js`)) // start from here solve this bugg hhah solve it dont worry
 		RestartWroker.stauts = "good"
 		RestartWroker.available = true
 		listenWorker(RestartWroker)
@@ -217,10 +259,11 @@ function getAvailableWorker(workerManger){
 }
  
 
+
+
 listenWorkes(workerManger)
  
-console.log(attempts)
-
+ 
  
 
 
@@ -293,19 +336,7 @@ runQuee()
  
 process.on('message', async (stream) => {SetJob({id:uuid(),stream,isCompleted:"Pending"})})
  
-//  setInterval(() => {
-//     const memory = process.memoryUsage();
 
-//     console.log({
-//         rss: memory.rss,
-//         heapUsed: memory.heapUsed,
-//         heapTotal: memory.heapTotal,
-//         register: Register.size,
-//         pending: PendingJob.length,
-//     });
-// }, 2000);
-
- 
  
  
  
