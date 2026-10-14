@@ -22,11 +22,11 @@ import timeout from "connect-timeout";
 import RoutesCreateRooms from "./routes/createRooms.routes.js"
 import RotuesCreateMatch from "./routes/createEventsRoom.routes.js"
 import RouteUseProfile   from "./routes/profile.routes.js"
- 
+import RouteUseUpload from "./routes/uploadVideo.routes.js"
 import { limiter } from "./Limter/Limter.js";
 
 
-import cp from "node:child_process"
+ import cp from "node:child_process"
 
 
 
@@ -522,142 +522,94 @@ app.use("/room",verifyJWT,RoutesCreateRooms)
 app.use("/create",verifyJWT,RotuesCreateMatch)
 app.use("/profile",verifyJWT,RouteUseProfile)
  
-// split worker
+// upload video
 
 
- 
-
-
-
-
-
+app.use("/upload",verifyJWT,RouteUseUpload)
 
  
- 
+
 
 
 
 
 
  
-
-
-const Broker = cp.fork('./BrokerMessageJob/broker.js');
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-let eventClient  
- 
  
 
 
- 
-// workerManger.forEach((worker)=>{
 
-//     worker.w.on('message', async(message) => {
-  
-//      if(message.type=="failed"){
-//           eventClient.write(`data: ${JSON.stringify({
-//         status: "failed",
-      
-//         })}\n\n`);
-//      }
-//     if(eventClient){
+
+
+ 
+
+
+// const Broker = cp.fork('./BrokerMessageJob/broker.js');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// let eventClient  
+ 
+ 
+
+ 
+
+
+ 
+
+
+// function Producer(BrokerMessages,payload){
+   
+//     BrokerMessages.send(payload)
+// }
+
+
+// Broker.on("message",det=>console.log(det,"579"))
+
+
+// app.post("/api/upload/video",verifyJWT,(req,res)=>{
     
-        
-//             const RestWorker = workerManger.find((item)=>item.worker == message.worker )
-//             RestWorker.available = true
-//             eventClient.write(`data: ${JSON.stringify({
-//             status: "Complete",
-//             CategorieVideo:message.type,
-//             responseFromWorker : message.worker
-//             })}\n\n`);
+//     const {img} = req.body 
+//     // this send it to redis
+//     Producer(Broker,
+//         {
+//             userid:req.user.id,
+//             test:"test!!", 
+//             img
 
-
-           
-//                 const SiftFirstOpearation = quee.shift()
-//                 if(SiftFirstOpearation){
-                  
-                    
-//                         const workerAlive = getAvailableWorker (workerManger)
-  
-//                         console.log(workerAlive.worker)
-//                         RunProcess(workerAlive,{id:SiftFirstOpearation.id,img_link:SiftFirstOpearation.img_link,workerInfo:workerAlive.worker})
-                        
-
-
-
-           
-//                 }
-            
-     
-            
-//     }
- 
-// });
-
- 
-//     worker.w.on('close', (code) => {
-//     console.log(`Child process exited with code ${code}`);
-//     });
+//         }
+//     )
+//     return res.status(200).json({status :"Processing"})
+    
 // })
 
 
 
- 
+// app.get("/events/result", (req, res) => {
+//   res.setHeader("Content-Type", "text/event-stream");
+//   res.setHeader("Cache-Control", "no-cache");
+//   res.setHeader("Connection", "keep-alive");
 
-
-function Producer(BrokerMessages,payload){
-   
-    BrokerMessages.send(payload)
-}
-
-
-
-
-
-app.post("/api/upload/video",verifyJWT,(req,res)=>{
-    
-    const {img} = req.body 
-    // this send it to redis
-    Producer(Broker,
-        {
-            userid:req.user.id,
-            test:"test!!"
-
-        }
-    )
-    return res.status(200).json({status :"Processing"})
-    
-})
-
-
-
-app.get("/events/result", (req, res) => {
-  res.setHeader("Content-Type", "text/event-stream");
-  res.setHeader("Cache-Control", "no-cache");
-  res.setHeader("Connection", "keep-alive");
-
-   eventClient = res;
-   req.on("close", () => {
-    eventClient = null;
-  });
+//    eventClient = res;
+//    req.on("close", () => {
+//     eventClient = null;
+//   });
  
 
  
-});
+// });
 
 
 

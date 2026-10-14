@@ -23,7 +23,7 @@ const  createWorkerManger = ()=>{
 		for(let i = 1;i<=5;i++){
 		let createWorker = {
 				worker:`worker${i}`,
-				available:i==1?true:false,
+				available:i==1?true:true,
 				refWorker:cp.fork(path.join(__dirname,`../${GlobalWorkerFile}/worker${i}.js`)),
 				stauts:"good"
 		}
@@ -102,6 +102,23 @@ let Register = new Map()
 
 let attempts = new Map()
 
+ 
+
+
+// function listenWorkers(workerManager) { refactor structure
+//     for (const worker of workerManager) {
+//         attempts.set(worker.worker, 0);
+
+//         worker.refWorker.on("message", (result) => {
+//             handleWorkerMessage(result, workerManager);
+//         });
+
+//         worker.refWorker.on("exit", (code, signal) => {
+//             handleWorkerExit(worker, code, signal);
+//         });
+//     }
+// }
+
 
 function listenWorkes(workerManger){
 	 
@@ -112,9 +129,10 @@ function listenWorkes(workerManger){
 		worker.refWorker.on('message', async(result) => {
           
 		   console.log("-------------------------------------------------------")
-		   console.log(result,"result wroker")
+		   //console.log(result,"result wroker")
 		   if(result.status=="Completed"){
 			Register.delete(result.worker)
+			process.send(result)
 		   }
 
 		   
@@ -334,7 +352,7 @@ runQuee()
  
 
  
-process.on('message', async (stream) => {SetJob({id:uuid(),stream,isCompleted:"Pending"})})
+process.on('message', async (stream) => {SetJob({id:uuid(),stream})})
  
 
  
